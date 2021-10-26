@@ -1,0 +1,35 @@
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+  labels:
+    addonmanager.kubernetes.io/mode: "Reconcile"
+spec:
+  imagePullSecrets: []
+  kubernetesProvider: AKS
+  calicoNetwork:
+    bgp: Disabled
+    containerIPForwarding: Enabled
+    ipPools:
+      - natOutgoing: Enabled
+        encapsulation: VXLAN
+        cidr: 10.244.0.0/16
+  cni:
+    ipam:
+      type: Calico
+    type: Calico
+  registry: mcr.microsoft.com/
+  imagePath: oss/calico
+  controlPlaneTolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+  typhaAffinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - preference:
+            matchExpressions:
+              - key: kubernetes.azure.com/mode
+                operator: In
+                values:
+                  - system
+          weight: 100
